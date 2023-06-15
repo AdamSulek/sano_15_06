@@ -8,16 +8,30 @@ on:
     inputs: {}
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - name: Build the docker image
         run: make build
+
+  deploy:
+    needs: [ "build" ]
+    runs-on: ubuntu-20.04
+    steps:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - uses: actions/checkout@v3
+      - name: Build the docker image
+        run: make build
       - name: Push docker images
         run: make push
