@@ -4,7 +4,7 @@ WORKDIR /app
 
 
 COPY *.go ./
-RUN go mod init
+RUN go mod init example.com/m
 
 RUN go build -o /hello-world
 
